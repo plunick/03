@@ -1,0 +1,50 @@
+def divide_into_two_lists(exhibits):
+    total_value = sum(exhibits) # Сумма всех элементов
+    half_total = total_value // 2
+    
+    dp = [[False] * (half_total + 1) for _ in range(len(exhibits) + 1)] 
+    #Создаем двумерный булев массив, который показывает, какие суммы могут быть достигнуты при различных комбинациях выбора элементов из списка exhibits. 
+    #Каждый элемент dp[i][j] в массиве отражает возможность или невозможность достичь суммы j с использованием первых i элементов списка exhibits.
+
+    for i in range(len(exhibits) + 1):
+        dp[i][0] = True
+    
+    for i in range(1, len(exhibits) + 1):
+        for j in range(1, half_total + 1):
+            if exhibits[i - 1] <= j:
+                dp[i][j] = dp[i - 1][j] or dp[i - 1][j - exhibits[i - 1]]
+            else:
+                dp[i][j] = dp[i - 1][j]
+    
+    min_difference = None
+    list1 = []
+    list2 = []
+    
+    for j in range(half_total, -1, -1):
+        if dp[len(exhibits)][j]:
+            min_difference = total_value - 2 * j
+            break
+    
+    i = len(exhibits)
+    j = half_total
+    
+    #С использованием массива dp происходит обратный проход, чтобы найти элементы, составляющие list1, минимизируя разницу. 
+    #Элементы, которые не включены в list1, добавляются в list2.
+    while i > 0 and j > 0:
+        if dp[i][j] and dp[i - 1][j]:
+            i -= 1
+        else:
+            list1.append(exhibits[i - 1])
+            j -= exhibits[i - 1]
+        if min_difference == 0:
+            break
+    
+    list2 = [exhibit for exhibit in exhibits if exhibit not in list1]
+    
+    return list1, list2
+
+# Пример
+exhibits = [3, 1, 4, 5, 2]
+list1, list2 = divide_into_two_lists(exhibits)
+print("List 1:", list1)
+print("List 2:", list2)
